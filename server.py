@@ -32,29 +32,31 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
    
     server.register_function(get_available_table_list, "get_available_table_list")
     
+    
     def reserve_table(table_id, user_name):
         """Reserve a table"""
         print(f"Client requested to reserve table {table_id}")
         
         cursor.execute('UPDATE tables SET table_status = "Reserved", table_reservation = ? WHERE table_id = ?', (user_name, table_id,))
         connection.commit()
-        
+            
         table_status = cursor.execute('SELECT * FROM tables WHERE table_id = ? AND table_reservation = ?', (table_id, user_name,)).fetchall()
-        
+            
         return table_status
     
     server.register_function(reserve_table, "reserve_table")
+    
     
     def view_single_reservation(user_name):
         """View single reservation"""
         print(f"Client requested to view reservation of {user_name}")
         
-        #BUG
         table_status = cursor.execute('SELECT * FROM tables WHERE table_reservation = ?', (user_name,)).fetchall()
         
         return table_status
     
     server.register_function(view_single_reservation, "view_single_reservation")
+    
     
     def check_reservation_exists(user_name):
         """Check if reservation exists"""
@@ -68,6 +70,7 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         
     server.register_function(check_reservation_exists, "check_reservation_exists")
         
+        
     def get_menu():
         """Get menu from database"""
         print("Client requested menu")
@@ -77,6 +80,7 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         return menu
     
     server.register_function(get_menu, "get_menu")
+    
     
     def make_an_order(user_name, order):
         """Make an order"""
@@ -90,6 +94,28 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         return table_status
     
     server.register_function(make_an_order, "make_an_order")
+        
+        
+    def process_payment(user_name):
+        """Process payment"""
+        print("Client requested to process payment")
+        
+        customer_order = cursor.execute('SELECT ordered_items FROM tables WHERE table_reservation = ?', (user_name,)).fetchall()
+        
+        iter_count = 0
+        food_query = ""
+        
+        for item in customer_order[0]:
+            if iter_count == 0:
+                food_query += f'food_id = {item}'
+            else:
+                food_query = food_query + f' OR food_id = {item}'
+            
+            iter_count += 1
+        
+        ordered_items = cursor.execute('SELECT * FROM menu WHERE ?', (food_query,)).fetchall()
+        
+        return ordered_items
 
     # Run the server's main loop
     server.serve_forever()

@@ -35,29 +35,39 @@ def make_a_reservation():
     """Function for getting the list of tables and making a reservation"""
     global user_name
     
-    # Getting the list of tables
-    table_list = server.get_available_table_list()
+    existing_reservation = server.check_reservation_exists(user_name)
     
-    # Showing the list of tables
-    print("\n##############\nList of currently available tables:")
+    # If user already has a reservation decline a new reservation
+    if existing_reservation == True:
+        print("\n##############\nYou already have a reservation.\nUser can have one reservation at a time.")
+        return
     
-    for table in table_list:
-        print(f"Table {table} is available")
+    else:
     
-    while True:
-        # Getting the user input
-        selection = int(input("Enter the table number you want to reserve (0 - exit): "))
-        if selection == 0:
-            return
-        elif selection not in table_list:
-            print("This table is not available. Please try again.")
-            continue
-        break
-    
-    reservation_status = server.reserve_table(selection, user_name)
-    user_name_database = reservation_status[0][2].replace("_", " ")
-    
-    print(f"\n##############\nTable reserved!\n Your table is: {reservation_status[0][0]}\n Your name is: {user_name_database}\n Reservation time: {datetime.now()}\n")
+        # Getting the list of tables
+        table_list = server.get_available_table_list()
+        
+        # Showing the list of tables
+        print("\n##############\nList of currently available tables:")
+        
+        for table in table_list:
+            print(f"Table {table} is available")
+        
+        while True:
+            # Getting the user input
+            selection = int(input("Enter the table number you want to reserve (0 - exit): "))
+            if selection == 0:
+                return
+            elif selection not in table_list:
+                print("This table is not available. Please try again.")
+                continue
+            break
+        
+        reservation_status = server.reserve_table(selection, user_name)
+        user_name_database = reservation_status[0][2].replace("_", " ")
+        
+        print(f"\n##############\nTable reserved!\n Your table is: {reservation_status[0][0]}\n Your name is: {user_name_database}\n Reservation time: {datetime.now()}\n")
+
 
 def view_my_reservation():
     """Function for viewing the user's reservation"""
@@ -71,6 +81,7 @@ def view_my_reservation():
         user_name_database = reservation_status[0][2].replace("_", " ")
     
     print(f"\n##############\nYour table is: {reservation_status[0][0]}\nYour name is: {user_name_database}\n")
+
 
 def make_an_order():
     """For making an order"""
@@ -92,17 +103,19 @@ def make_an_order():
         
         print(f"\n##############\nYou have made an order! Your order is: {order_status[0][3]}")
         
-        
-    
     
 def pay_the_order():
     """For paying the order"""
-
+    global user_name
+    
+    
     pass
+
 
 def cancel_reservation():
     """For cancelling the reservation"""
     
     pass
+    
     
 main()
