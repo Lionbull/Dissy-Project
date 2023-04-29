@@ -21,7 +21,7 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         """Get table list from database"""
         print("Client requested table list")
         
-        table_list = cursor.execute('''SELECT * FROM tables''').fetchall()
+        table_list = cursor.execute('SELECT * FROM tables').fetchall()
         
         available_tables = []
         for table in table_list:
@@ -36,10 +36,10 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         """Reserve a table"""
         print(f"Client requested to reserve table {table_id}")
         
-        cursor.execute("UPDATE tables SET table_status = 'Reserved', table_reservation = ? WHERE table_id = ?", (user_name, table_id))
+        cursor.execute('UPDATE tables SET table_status = "Reserved", table_reservation = ? WHERE table_id = ?', (user_name, table_id,))
         connection.commit()
         
-        table_status = cursor.execute(f"SELECT * FROM tables WHERE table_id = ? AND table_reservation = ?", (table_id, user_name)).fetchall()
+        table_status = cursor.execute('SELECT * FROM tables WHERE table_id = ? AND table_reservation = ?', (table_id, user_name,)).fetchall()
         
         return table_status
     
@@ -50,7 +50,7 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         print(f"Client requested to view reservation of {user_name}")
         
         #BUG
-        table_status = cursor.execute(f"SELECT * FROM tables WHERE table_reservation = ?", (user_name)).fetchall()
+        table_status = cursor.execute('SELECT * FROM tables WHERE table_reservation = ?', (user_name,)).fetchall()
         
         return table_status
     
@@ -59,7 +59,7 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
     def check_reservation_exists(user_name):
         """Check if reservation exists"""
         
-        exists = cursor.execute(f"SELECT * FROM tables WHERE table_reservation = ?", (user_name,)).fetchall()
+        exists = cursor.execute('SELECT * FROM tables WHERE table_reservation = ?', (user_name,)).fetchall()
         
         if len(exists) == 0:
             return False
@@ -72,7 +72,7 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         """Get menu from database"""
         print("Client requested menu")
         
-        menu = cursor.execute('''SELECT * FROM menu''').fetchall()
+        menu = cursor.execute('SELECT * FROM menu').fetchall()
         
         return menu
     
@@ -80,12 +80,12 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
     
     def make_an_order(user_name, order):
         """Make an order"""
-        print(f"Client requested to make an order for a table")
+        print("Client requested to make an order for a table")
         
-        cursor.execute("UPDATE tables SET table_status = 'Ordered', ordered_items = ? WHERE table_reservation = ?", (order, user_name))
+        cursor.execute('UPDATE tables SET table_status = "Ordered", ordered_items = ? WHERE table_reservation = ?', (order, user_name,))
         connection.commit()
         
-        table_status = cursor.execute(f"SELECT * FROM tables WHERE table_reservation = ?", (user_name)).fetchall()
+        table_status = cursor.execute('SELECT * FROM tables WHERE table_reservation = ?', (user_name,)).fetchall()
         
         return table_status
     

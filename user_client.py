@@ -39,7 +39,7 @@ def make_a_reservation():
     table_list = server.get_available_table_list()
     
     # Showing the list of tables
-    print(f"\n##############\nList of currently available tables:")
+    print("\n##############\nList of currently available tables:")
     
     for table in table_list:
         print(f"Table {table} is available")
@@ -57,20 +57,20 @@ def make_a_reservation():
     reservation_status = server.reserve_table(selection, user_name)
     user_name_database = reservation_status[0][2].replace("_", " ")
     
-    print(f"Table reserved!\n Your table is: {reservation_status[0][0]}\n Your name is: {user_name_database}\n Reservation time: {datetime.now()}\n")
+    print(f"\n##############\nTable reserved!\n Your table is: {reservation_status[0][0]}\n Your name is: {user_name_database}\n Reservation time: {datetime.now()}\n")
 
 def view_my_reservation():
     """Function for viewing the user's reservation"""
     global user_name
     reservation_exists = server.check_reservation_exists(user_name)
     if reservation_exists == False:
-        print("You don't have a reservation. Please make a reservation first.")
+        print("\n##############\nYou don't have a reservation. Please make a reservation first.")
         return
     else:
         reservation_status = server.view_single_reservation(user_name)
         user_name_database = reservation_status[0][2].replace("_", " ")
     
-    print(f"Your table is: {reservation_status[0][0]}\nYour name is: {user_name_database}\n")
+    print(f"\n##############\nYour table is: {reservation_status[0][0]}\nYour name is: {user_name_database}\n")
 
 def make_an_order():
     """For making an order"""
@@ -82,7 +82,7 @@ def make_an_order():
         return
     else:
         menu = server.get_menu()
-        print("Menu:")
+        print("\n##############\nMenu:")
         for item in menu:
             print(f"{item[0]}. {item[1]} - {item[2]}")
             
@@ -90,7 +90,7 @@ def make_an_order():
               
         order_status = server.make_an_order(user_name, menu_selection)
         
-        print(f"You have made an order! Your order is: {order_status[0][3]}")
+        print(f"\n##############\nYou have made an order! Your order is: {order_status[0][3]}")
         
         
     
