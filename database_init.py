@@ -10,7 +10,7 @@ cursor.execute('''DROP TABLE IF EXISTS menu''')
 cursor.execute('''CREATE TABLE menu(food_id INTEGER PRIMARY KEY AUTOINCREMENT, food_name TEXT, food_price INTEGER, food_type TEXT)''')
 
 cursor.execute('''INSERT INTO menu(food_name, food_price, food_type) VALUES("Bread with Salsa", 20, "L")''')
-cursor.execute('''INSERT INTO menu(food_name, food_price, food_type) VALUES("Salad", 50, "L")''')
+cursor.execute('''INSERT INTO menu(food_name, food_price, food_type) VALUES("Salad with Tomatos", 50, "L")''')
 cursor.execute('''INSERT INTO menu(food_name, food_price, food_type) VALUES("Chicken with Rice", 100, "G, L")''')
 cursor.execute('''INSERT INTO menu(food_name, food_price, food_type) VALUES("Beef with Potatoes", 200, "G, L")''')
 

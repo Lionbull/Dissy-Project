@@ -101,21 +101,46 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
         print("Client requested to process payment")
         
         customer_order = cursor.execute('SELECT ordered_items FROM tables WHERE table_reservation = ?', (user_name,)).fetchall()
-        
-        iter_count = 0
-        food_query = ""
-        
-        for item in customer_order[0]:
-            if iter_count == 0:
-                food_query += f'food_id = {item}'
-            else:
-                food_query = food_query + f' OR food_id = {item}'
-            
-            iter_count += 1
-        
-        ordered_items = cursor.execute('SELECT * FROM menu WHERE ?', (food_query,)).fetchall()
-        
-        return ordered_items
 
+        # If the customer has not ordered anything, return False
+        if customer_order[0][0] == "-":
+            return False
+        
+        else:
+            customer_order = customer_order[0][0].split(";")
+
+            iter_count = 0
+            food_query = ""
+            
+            for item in customer_order:
+                if iter_count == 0:
+                    food_query += f'food_id = {item}'
+                else:
+                    food_query = food_query + f' OR food_id = {item}'
+                
+                iter_count += 1
+            
+            ordered_items = cursor.execute('SELECT * FROM menu WHERE ' + food_query).fetchall()
+
+            cursor.execute('UPDATE tables SET table_status = "Available", ordered_items = "-", table_reservation = "No reservation" WHERE table_reservation = ?', (user_name,))
+            connection.commit()
+
+            return ordered_items
+    
+    server.register_function(process_payment, "process_payment")
+
+
+    def cancel_reservation(user_name):
+        """Cancel reservation"""
+        print("Client requested to cancel reservation")
+        
+        cursor.execute('UPDATE tables SET table_status = "Available", ordered_items = "-", table_reservation = "No reservation" WHERE table_reservation = ?', (user_name,))
+        connection.commit()
+        
+        return True
+    
+    server.register_function(cancel_reservation, "cancel_reservation")
+
+    
     # Run the server's main loop
     server.serve_forever()

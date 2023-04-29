@@ -1,8 +1,9 @@
 import xmlrpc.client
 from datetime import datetime
+import time
 
 server = xmlrpc.client.ServerProxy('http://localhost:8000')
-
+print("Welcome!\n")
 user_name = input("Enter your name: ")
 user_name = user_name.replace(" ", "_")
 
@@ -18,17 +19,21 @@ def main():
         elif choice == "2":
             make_an_order()
         elif choice == "3":
-            pay_the_order()
+            paid = pay_the_order()
+            if paid == True:
+                break
         elif choice == "4":
             view_my_reservation()
         elif choice == "5":
             cancel_reservation()
         elif choice == "0":
-            print("Goodbye!")
             break
         else:
             print("Invalid choice. Please try again.")
             continue
+
+    print("\n##############\nThank you for visiting us!")
+    print("Goodbye!\n")
 
 
 def make_a_reservation():
@@ -89,13 +94,13 @@ def make_an_order():
     reservation_exists = server.check_reservation_exists(user_name)
     
     if reservation_exists == False:
-        print("You don't have a reservation. Please make a reservation first.")
+        print("\n##############\nYou don't have a reservation. Please make a reservation first.")
         return
     else:
         menu = server.get_menu()
         print("\n##############\nMenu:")
         for item in menu:
-            print(f"{item[0]}. {item[1]} - {item[2]}")
+            print(f"{item[0]}. {item[1]} \t-\t {item[2]}€")
             
         menu_selection = input("Please, enter the numbers of items (separated by semicolon): ")
               
@@ -108,14 +113,53 @@ def pay_the_order():
     """For paying the order"""
     global user_name
     
-    
-    pass
+    reservation_exists = server.check_reservation_exists(user_name)
+
+    if reservation_exists == False:
+        print("\n##############\nYou don't have a reservation. Please make a reservation first.")
+        return False
+
+    else:
+        ordered_items = server.process_payment(user_name)
+
+        if ordered_items == False:
+            print("\n##############\nYou don't have any orders to pay.")
+            return False
+        
+        else:
+            print("\n##############\nProcessing your order...")
+
+            print("\n\nPayment successful!\n\nReceipt:\n")
+
+            total_price = 0
+
+            for item in ordered_items:
+                total_price += item[2]
+                print(f"{item[0]}. {item[1]}\t{item[2]}€")
+            print("-------------------------------")
+            print(f"\t\tTotal:\t{total_price}€")
+
+            return True
 
 
 def cancel_reservation():
     """For cancelling the reservation"""
+    global user_name
+
+    reservation_exists = server.check_reservation_exists(user_name)
+
+    if reservation_exists == False:
+        print("\n##############\nYou don't have a reservation. Please make a reservation first.")
+        return False
     
-    pass
-    
+    else:
+        cancel = input("\n##############\nAre you sure you want to cancel your reservation? (y/n): ")
+
+        if cancel == "y":
+            server.cancel_reservation(user_name)
+            print("Your reservation has been cancelled.")
+        else:
+            print("Your reservation has not been cancelled.")
+            return 
     
 main()
