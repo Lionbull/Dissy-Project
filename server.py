@@ -122,18 +122,37 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
             
             ordered_items = cursor.execute('SELECT * FROM menu WHERE ' + food_query).fetchall()
 
-            cursor.execute('UPDATE tables SET table_status = "Available", ordered_items = "-", table_reservation = "No reservation" WHERE table_reservation = ?', (user_name,))
+            # Update table total income
+            total_price = 0
+            for item in ordered_items:
+                total_price += item[2]
+            
+            table_total_income = cursor.execute('SELECT total_income FROM tables WHERE table_reservation = ?', (user_name,)).fetchall()
+            table_total_income = table_total_income[0][0] + total_price
+            
+            cursor.execute('UPDATE tables SET table_status = "Available", ordered_items = "-", table_reservation = "No reservation", total_income = ? WHERE table_reservation = ?', (table_total_income, user_name,))
             connection.commit()
+
+            breakpoint()
 
             return ordered_items
     
     server.register_function(process_payment, "process_payment")
 
+    def get_total_income():
+        """Get total income"""
+        
+        total_income = cursor.execute('SELECT table_id AND total_income FROM tables').fetchall()
+        
+        return total_income
+    
+    server.register_function(get_total_income, "get_total_income")
+
 
     def cancel_reservation(user_name):
         """Cancel reservation"""
         print("Client requested to cancel reservation")
-        
+
         cursor.execute('UPDATE tables SET table_status = "Available", ordered_items = "-", table_reservation = "No reservation" WHERE table_reservation = ?', (user_name,))
         connection.commit()
         
@@ -141,6 +160,37 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
     
     server.register_function(cancel_reservation, "cancel_reservation")
 
+    def get_table_status():
+        """Get status of all tables"""
+        
+        tables = cursor.execute('SELECT * FROM tables').fetchall()
+        
+        return tables
     
+    server.register_function(get_table_status, "get_table_status")
+
+    def close_open_table(table_id):
+        """Close table"""
+
+        table = cursor.execute('SELECT table_status FROM tables WHERE table_id = ?', (table_id,)).fetchall()
+
+        # If table has ordered or it is reserved, admin can't manage table status
+        if table[0][0] == "Reserved" or table[0][0] == "Ordered":
+            return False
+        elif table[0][0] == "Available":
+            cursor.execute('UPDATE tables SET table_status = "Closed", ordered_items = "-", table_reservation = "No reservation" WHERE table_id = ?', (table_id,))
+            connection.commit()
+            return "Closed"
+        elif table[0][0] == "Closed":
+            cursor.execute('UPDATE tables SET table_status = "Available", ordered_items = "-", table_reservation = "No reservation" WHERE table_id = ?', (table_id,))
+            connection.commit()
+            return "Available"
+        
+        # If table status is not one of the above, return error
+        return "Error"
+    
+    server.register_function(close_open_table, "close_open_table")
+
+
     # Run the server's main loop
     server.serve_forever()

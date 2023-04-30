@@ -16,12 +16,12 @@ cursor.execute('''INSERT INTO menu(food_name, food_price, food_type) VALUES("Bee
 
 # Create table for tables
 cursor.execute('''DROP TABLE IF EXISTS tables''')
-cursor.execute('''CREATE TABLE tables(table_id INTEGER PRIMARY KEY AUTOINCREMENT, table_status TEXT, table_reservation TEXT, ordered_items TEXT)''')
+cursor.execute('''CREATE TABLE tables(table_id INTEGER PRIMARY KEY AUTOINCREMENT, table_status TEXT, table_reservation TEXT, ordered_items TEXT, total_income INTEGER)''')
 
-cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items) VALUES("Available", "No reservation", "-")''')
-cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items) VALUES("Available", "No reservation", "-")''')
-cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items) VALUES("Available", "No reservation", "-")''')
-cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items) VALUES("Available", "No reservation", "-")''')
+cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items, total_income) VALUES("Available", "No reservation", "-", 0)''')
+cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items, total_income) VALUES("Available", "No reservation", "-", 0)''')
+cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items, total_income) VALUES("Available", "No reservation", "-", 0)''')
+cursor.execute('''INSERT INTO tables(table_status, table_reservation, ordered_items, total_income) VALUES("Available", "No reservation", "-", 0)''')
 
 connection.commit()
 
