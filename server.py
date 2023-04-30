@@ -133,16 +133,14 @@ with SimpleXMLRPCServer(('localhost', 8000), requestHandler=RequestHandler) as s
             cursor.execute('UPDATE tables SET table_status = "Available", ordered_items = "-", table_reservation = "No reservation", total_income = ? WHERE table_reservation = ?', (table_total_income, user_name,))
             connection.commit()
 
-            breakpoint()
-
             return ordered_items
     
     server.register_function(process_payment, "process_payment")
 
     def get_total_income():
         """Get total income"""
-        
-        total_income = cursor.execute('SELECT table_id AND total_income FROM tables').fetchall()
+
+        total_income = cursor.execute('SELECT table_id, total_income FROM tables').fetchall()
         
         return total_income
     
